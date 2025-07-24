@@ -14,12 +14,11 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          fetch-tags: true
       - name: Calculate tag
         id: generate-tag
         run: |
+          git fetch --tags
+
           if [[ $(git tag | wc -l) -gt 1 ]]; then
             echo "Generating new tag"
             last_tag=$(git tag -l *.*.* | sort -V | tail -n 1)

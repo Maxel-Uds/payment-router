@@ -12,11 +12,9 @@ jobs:
     concurrency: development
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          fetch-tags: true
       - name: Create Image With Docker
         run: |
+          git fetch --tags
           echo "Get New Tag Version"
           last_tag=$(git tag -l *.*.* | sort -V | tail -n 1)
           echo "Creating Container with version: $last_tag"
@@ -35,11 +33,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          fetch-tags: true
       - name: Pushing Image to Dockerhub
         run: |
+          git fetch --tags
           last_tag=$(git tag -l *.*.* | sort -V | tail -n 1)
           docker tag suntzu12/quarkus-payment-router:$last_tag suntzu12/quarkus-payment-router:$last_tag
           docker push suntzu12/quarkus-payment-router:$last_tag
