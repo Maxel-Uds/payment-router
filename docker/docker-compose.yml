@@ -13,7 +13,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./init-processor.sql:/docker-entrypoint-initdb.d/init-processor.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - payment-router
     healthcheck:
@@ -28,7 +28,7 @@ services:
           memory: "100MB"
 
   api01: &api
-    image: suntzu12/quarkus-payment-router:4.0.0
+    image: suntzu12/quarkus-payment-router:5.0.0
     container_name: api1
     hostname: api01
     ports:
@@ -41,9 +41,7 @@ services:
       QUARKUS_DATASOURCE_USERNAME: postgres
       QUARKUS_DATASOURCE_PASSWORD: postgres
       QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/payment_db
-      QUARKUS_REST_CLIENT_PROVIDER_A_API_URL: http://payment-processor-default:8080
-      QUARKUS_REST_CLIENT_PROVIDER_B_API_URL: http://payment-processor-fallback:8080
-      REDIS_HOST: redis://health-cache:6379
+      QUARKUS_REST_CLIENT_DEFAULT_API_URL: http://payment-processor-default:8080
     deploy:
       resources:
         limits:
