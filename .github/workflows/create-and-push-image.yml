@@ -7,7 +7,7 @@ on:
 jobs:
   create-image:
     name: CREATE IMAGE
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     environment: development
     concurrency: development
     steps:
@@ -23,7 +23,7 @@ jobs:
   push-image:
     needs: create-image
     name: PUSH IMAGE TO DOCKERHUB
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     environment: development
     concurrency: development
     steps:

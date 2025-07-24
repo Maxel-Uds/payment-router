@@ -19,7 +19,7 @@ jobs:
         run: |
           git fetch --tags
 
-          if [[ $(git tag | wc -l) -gt 1 ]]; then
+          if [[ $(git tag | wc -l) -gt 0 ]]; then
             echo "Generating new tag"
             last_tag=$(git tag -l *.*.* | sort -V | tail -n 1)
           
