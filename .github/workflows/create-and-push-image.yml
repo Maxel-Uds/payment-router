@@ -29,6 +29,7 @@ jobs:
         run: |
           TAG=${{ steps.extract_tag.outputs.tag }}
           echo "Building Docker image with tag: $TAG"
+          ./mvnw clean package -Dnative
           docker build -t suntzu12/quarkus-payment-router:$TAG -f docker/Dockerfile.native-micro .
 
       - name: Push Docker Image
