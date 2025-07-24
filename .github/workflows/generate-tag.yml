@@ -1,0 +1,53 @@
+name: Generate tag
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  generate-version:
+    name: GENERATE TAG
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.generate-tag.outputs.new_tag }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Calculate tag
+        id: generate-tag
+        run: |
+          git fetch --unshallow
+
+          if [[ $(git tag | wc -l) -gt 1 ]]; then
+            echo "Generating new tag"
+            last_tag=$(git tag -l * | sort -V | tail -n 1)
+          
+            read -ra last_tag_number <<< "$last_tag"
+
+            new_tag=$(last_tag_number + 1)
+          
+            echo "New tag: ${new_tag}"
+            echo "new_tag" >> "$GITHUB_OUTPUT"
+          else
+            echo "First tag"
+            echo "new_tag="0"" >> "$GITHUB_OUTPUT"
+          fi
+
+  bump-version:
+    needs: generate-version
+    name: BUMP VERSION
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: '0'
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.TAG_TOKEN }}
+          CUSTOM_TAG: ${{ needs.generate-version.outputs.version }}
+          TAG_CONTEXT: branch
