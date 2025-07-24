@@ -21,17 +21,21 @@ jobs:
 
           if [[ $(git tag | wc -l) -gt 1 ]]; then
             echo "Generating new tag"
-            last_tag=$(git tag -l * | sort -V | tail -n 1)
+            last_tag=$(git tag -l *.*.* | sort -V | tail -n 1)
           
-            read -ra last_tag_number <<< "$last_tag"
+            IFS='.-' read -ra numbers <<< "$last_tag"
+          
+            major="${numbers[0]}"
+            minor="${numbers[1]}"
+            patch="${numbers[2]}"
+          
+            major=$((major + 1))
 
-            new_tag=$(last_tag_number + 1)
-          
-            echo "New tag: ${new_tag}"
-            echo "new_tag" >> "$GITHUB_OUTPUT"
+            echo "New tag: ${major}.${minor}.${patch}"
+            echo "new_tag="${major}.${minor}.${patch}"" >> "$GITHUB_OUTPUT"
           else
             echo "First tag"
-            echo "new_tag="0"" >> "$GITHUB_OUTPUT"
+            echo "new_tag="1.0.0"" >> "$GITHUB_OUTPUT"
           fi
 
   bump-version:
