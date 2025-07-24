@@ -12,6 +12,9 @@ jobs:
     concurrency: development
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
       - name: Create Image With Docker
         run: |
           echo "Get New Tag Version"
@@ -32,6 +35,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
       - name: Pushing Image to Dockerhub
         run: |
           last_tag=$(git tag -l *.*.* | sort -V | tail -n 1)
