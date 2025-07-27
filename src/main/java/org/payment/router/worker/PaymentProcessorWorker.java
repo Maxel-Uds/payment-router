@@ -9,7 +9,6 @@ import org.eclipse.microprofile.context.ManagedExecutor;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.payment.router.client.PaymentProcessorDefaultAsyncClient;
 import org.payment.router.model.PaymentRequest;
-import org.payment.router.model.PaymentResponse;
 import org.payment.router.repository.PaymentRepository;
 
 import java.util.concurrent.LinkedBlockingQueue;
