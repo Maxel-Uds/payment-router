@@ -30,9 +30,8 @@ public class PaymentController {
 
     @POST
     @Path("/payments")
-    public Response processPayment(PaymentRequest request) {
+    public void processPayment(PaymentRequest request) {
         paymentProcessorWorker.enqueuePaymentForProcess(request);
-        return Response.accepted().build();
     }
 
     @GET

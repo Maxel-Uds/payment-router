@@ -10,7 +10,7 @@ help: ## Lista de comandos
 
 build: ## Cria a imagem
 	@./mvnw clean package -Dnative
-	@docker build --no-cache -t quarkus-payment-router -f docker/Dockerfile.native-micro .
+	@docker build --no-cache -t quarkus-payment-router:test -f docker/Dockerfile.native-micro .
 
 up: ## Sobe a infra completa
 	@docker-compose -f infra-for-test/docker-compose.yml up

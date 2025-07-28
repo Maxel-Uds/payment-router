@@ -29,7 +29,7 @@ public class PaymentProcessorWorker {
     private static final LinkedBlockingQueue<PaymentRequest> paymentsToProcess = new LinkedBlockingQueue<>();
 
     public void onStart(@Observes StartupEvent ev) {
-        IntStream.range(0, 15).forEach(__-> managedExecutor.execute(() -> { for(;;) { this.processPayment(this.getNextPayment()); } }));
+        IntStream.range(0, 25).forEach(__-> managedExecutor.execute(() -> { for(;;) { this.processPayment(this.getNextPayment()); } }));
     }
 
     private PaymentRequest getNextPayment() {
