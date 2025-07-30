@@ -10,12 +10,15 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.payment.router.client.PaymentProcessorDefaultAsyncClient;
 import org.payment.router.model.PaymentRequest;
 import org.payment.router.repository.PaymentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.IntStream;
 
 @Singleton
 public class PaymentProcessorWorker {
+    private static final Logger log = LoggerFactory.getLogger(PaymentProcessorWorker.class);
     @Inject
     ManagedExecutor managedExecutor;
 
@@ -29,7 +32,7 @@ public class PaymentProcessorWorker {
     private static final LinkedBlockingQueue<PaymentRequest> paymentsToProcess = new LinkedBlockingQueue<>();
 
     public void onStart(@Observes StartupEvent ev) {
-        IntStream.range(0, 25).forEach(__-> managedExecutor.execute(() -> { for(;;) { this.processPayment(this.getNextPayment()); } }));
+        IntStream.range(0, 15).forEach(__-> managedExecutor.execute(() -> { for(;;) { this.processPayment(this.getNextPayment()); } }));
     }
 
     private PaymentRequest getNextPayment() {

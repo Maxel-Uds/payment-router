@@ -5,5 +5,5 @@ COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
 RUN apt-get update && apt-get install -y luarocks
 
 RUN luarocks install lua-resty-http
-RUN luarocks install lua-resty-redis
-RUN luarocks install lua-cjson
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
