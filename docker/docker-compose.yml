@@ -28,7 +28,7 @@ services:
           memory: "100MB"
 
   api01: &api
-    image: suntzu12/quarkus-payment-router:5.0.0
+    image: suntzu12/quarkus-payment-router:4.0.0
     container_name: api1
     hostname: api01
     ports:
@@ -58,7 +58,7 @@ services:
       - "8082:8080"
 
   load_balancer:
-    image: suntzu12/lua-load-balancer:5.0.0
+    image: suntzu12/lua-load-balancer:4.0.0
     container_name: load_balancer
     depends_on:
       - api01
