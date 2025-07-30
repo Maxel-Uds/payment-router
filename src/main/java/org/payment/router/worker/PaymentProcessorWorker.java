@@ -19,6 +19,7 @@ import java.util.stream.IntStream;
 @Singleton
 public class PaymentProcessorWorker {
     private static final Logger log = LoggerFactory.getLogger(PaymentProcessorWorker.class);
+
     @Inject
     ManagedExecutor managedExecutor;
 
@@ -32,7 +33,7 @@ public class PaymentProcessorWorker {
     private static final LinkedBlockingQueue<PaymentRequest> paymentsToProcess = new LinkedBlockingQueue<>();
 
     public void onStart(@Observes StartupEvent ev) {
-        IntStream.range(0, 15).forEach(__-> managedExecutor.execute(() -> { for(;;) { this.processPayment(this.getNextPayment()); } }));
+        IntStream.range(0, 20).forEach(__-> managedExecutor.execute(() -> { for(;;) { this.processPayment(this.getNextPayment()); } }));
     }
 
     private PaymentRequest getNextPayment() {

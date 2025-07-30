@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.payment.router</groupId>
     <artifactId>payment-router</artifactId>
-    <version>3.0.0</version>
+    <version>4.0.0</version>
     <properties>
         <java.version>17</java.version>
         <quarkus.platform.version>3.11.1</quarkus.platform.version>

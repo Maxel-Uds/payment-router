@@ -202,8 +202,8 @@ export async function checkPaymentsConsistency() {
 
   const now = new Date();
 
-  const from = new Date(now - 1000 * 10).toISOString();
-  const to = new Date(now - 100).toISOString();
+  const from = new Date(now - 1000 * 15).toISOString();
+  const to = new Date(now - 1500).toISOString();
 
   const defaultAdminPaymentsSummaryPromise = getPPPaymentsSummary(
     "default",
@@ -265,7 +265,7 @@ export function handleSummary(data) {
   const p_99 = new Big(data.metrics["http_req_duration{expected_response:true}"].values["p(99)"]).round(2).toNumber();
   const p_99_bonus = Math.max(new Big((11 - p_99) * 0.02).round(2).toNumber(), 0);
   const contains_inconsistencies = data.metrics.payments_inconsistency.values.count > 0;
-  
+
   const inconsistencies_fine = contains_inconsistencies ? 0.35 : 0;
 
   // caixa dois
@@ -277,7 +277,7 @@ export function handleSummary(data) {
   const liquid_amount = new Big(liquid_partial_amount)
     .plus(new Big(liquid_partial_amount).times(p_99_bonus))
     .minus(new Big(liquid_partial_amount).times(inconsistencies_fine)).toNumber();
-  
+
   const name = __ENV.PARTICIPANT ?? "anonymous";
 
   const custom_data = {
