@@ -2,6 +2,7 @@ package org.payment.router.model;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "payments")
@@ -48,6 +49,8 @@ public class PaymentRequest {
     }
 
     public PaymentRequest toProcess() {
-        return this.setProvider("default").setRequestedAt(Instant.now());
+        return new PaymentRequest(this.correlationId, this.amount)
+                .setProvider("default")
+                .setRequestedAt(Instant.now().truncatedTo(ChronoUnit.SECONDS));
     }
 }

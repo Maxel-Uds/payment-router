@@ -5,6 +5,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.payment.router.client.PaymentProcessorDefaultAsyncClient;
@@ -16,6 +17,12 @@ import java.util.stream.IntStream;
 
 @Singleton
 public class PaymentProcessorWorker {
+    @ConfigProperty(name = "max.workers.process")
+    int maxWorkersToProcess;
+
+    @ConfigProperty(name = "max.workers.save")
+    int maxWorkersToSave;
+
     @Inject
     ManagedExecutor managedExecutor;
 
@@ -27,14 +34,27 @@ public class PaymentProcessorWorker {
     PaymentProcessorDefaultAsyncClient paymentProcessorDefaultAsyncClient;
 
     private static final LinkedBlockingQueue<PaymentRequest> paymentsToProcess = new LinkedBlockingQueue<>();
+    private static final LinkedBlockingQueue<PaymentRequest> paymentsToSave = new LinkedBlockingQueue<>();
 
-    public void onStart(@Observes StartupEvent ev) {
-        IntStream.range(0, 15).forEach(__-> managedExecutor.execute(() -> { for(;;) { this.processPayment(this.getNextPayment()); } }));
+    public void startProcessWorker(@Observes StartupEvent ev) {
+        IntStream.range(0, maxWorkersToProcess).forEach(__-> managedExecutor.execute(() -> { for(;;) { this.processPayment(this.getNextPaymentToProcess()); } }));
     }
 
-    private PaymentRequest getNextPayment() {
+    public void startPersistWorker(@Observes StartupEvent ev) {
+        IntStream.range(0, maxWorkersToSave).forEach(__-> managedExecutor.execute(() -> { for(;;) { this.persistAsync(this.getNextPaymentToSave()); } }));
+    }
+
+    private PaymentRequest getNextPaymentToProcess() {
         try {
             return paymentsToProcess.take();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private PaymentRequest getNextPaymentToSave() {
+        try {
+            return paymentsToSave.take();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -44,19 +64,19 @@ public class PaymentProcessorWorker {
         paymentsToProcess.offer(request);
     }
 
-    @Transactional
     public void processPayment(PaymentRequest request) {
         try {
             final PaymentRequest paymentReadyToProcess = request.toProcess();
 
             this.paymentProcessorDefaultAsyncClient.process(paymentReadyToProcess);
-            this.saveProcessedPayment(paymentReadyToProcess);
+            paymentsToSave.offer(paymentReadyToProcess);
         } catch (Exception e) {
             this.enqueuePaymentForProcess(request);
         }
     }
 
-    private void saveProcessedPayment(PaymentRequest processedPayment) {
-        this.paymentRepository.persist(processedPayment);
+    @Transactional
+    void persistAsync(PaymentRequest request) {
+        this.paymentRepository.persist(request);
     }
 }
