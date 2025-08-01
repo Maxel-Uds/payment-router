@@ -17,19 +17,17 @@ public class PaymentService {
     @Inject
     PaymentRepository paymentRepository;
 
-
-    @Transactional
     public PaymentsSummary getSummary(Instant from, Instant to) {
-        List<PaymentRequest> filtered = paymentRepository.listAll();
+        List<PaymentRequest> filtered = paymentRepository.findByRequestedAtBetween(from, to);
 
         List<PaymentRequest> defaultList = filtered.stream()
                 .filter(p -> "default".equalsIgnoreCase(p.provider))
-                .filter(p -> !p.requestedAt.isBefore(from) && !p.requestedAt.isAfter(to))
+//                .filter(p -> !p.requestedAt.isBefore(from) && !p.requestedAt.isAfter(to))
                 .collect(Collectors.toList());
 
         List<PaymentRequest> fallbackList = filtered.stream()
                 .filter(p -> "fallback".equalsIgnoreCase(p.provider))
-                .filter(p -> !p.requestedAt.isBefore(from) && !p.requestedAt.isAfter(to))
+//                .filter(p -> !p.requestedAt.isBefore(from) && !p.requestedAt.isAfter(to))
                 .collect(Collectors.toList());
 
         PaymentsSummary summary = new PaymentsSummary();

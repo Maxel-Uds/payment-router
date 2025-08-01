@@ -48,9 +48,15 @@ public class PaymentRequest {
                 '}';
     }
 
-    public PaymentRequest toProcess() {
+    public PaymentRequest toProcessOnDefault() {
         return new PaymentRequest(this.correlationId, this.amount)
                 .setProvider("default")
+                .setRequestedAt(Instant.now().truncatedTo(ChronoUnit.SECONDS));
+    }
+
+    public PaymentRequest toProcessOnFallback() {
+        return new PaymentRequest(this.correlationId, this.amount)
+                .setProvider("fallback")
                 .setRequestedAt(Instant.now().truncatedTo(ChronoUnit.SECONDS));
     }
 }

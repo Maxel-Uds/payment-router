@@ -9,6 +9,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.payment.router.client.PaymentProcessorDefaultAsyncClient;
+import org.payment.router.client.PaymentProcessorFallbackAsyncClient;
 import org.payment.router.model.PaymentRequest;
 import org.payment.router.repository.PaymentRepository;
 
@@ -32,6 +33,10 @@ public class PaymentProcessorWorker {
     @Inject
     @RestClient
     PaymentProcessorDefaultAsyncClient paymentProcessorDefaultAsyncClient;
+
+    @Inject
+    @RestClient
+    PaymentProcessorFallbackAsyncClient paymentProcessorFallbackAsyncClient;
 
     private static final LinkedBlockingQueue<PaymentRequest> paymentsToProcess = new LinkedBlockingQueue<>();
     private static final LinkedBlockingQueue<PaymentRequest> paymentsToSave = new LinkedBlockingQueue<>();
@@ -60,23 +65,27 @@ public class PaymentProcessorWorker {
         }
     }
 
-    public void enqueuePaymentForProcess(PaymentRequest request) {
-        paymentsToProcess.offer(request);
-    }
-
     public void processPayment(PaymentRequest request) {
         try {
-            final PaymentRequest paymentReadyToProcess = request.toProcess();
-
+            final PaymentRequest paymentReadyToProcess = request.toProcessOnDefault();
             this.paymentProcessorDefaultAsyncClient.process(paymentReadyToProcess);
             paymentsToSave.offer(paymentReadyToProcess);
-        } catch (Exception e) {
-            this.enqueuePaymentForProcess(request);
+        } catch (Exception eDefault) {
+            try {
+                final PaymentRequest paymentReadyToProcess = request.toProcessOnFallback();
+                this.paymentProcessorFallbackAsyncClient.process(paymentReadyToProcess);
+                paymentsToSave.offer(paymentReadyToProcess);
+            } catch (Exception eFallback) {
+                this.enqueuePaymentForProcess(request);
+            }
         }
     }
 
-    @Transactional
     void persistAsync(PaymentRequest request) {
-        this.paymentRepository.persist(request);
+        this.paymentRepository.save(request);
+    }
+
+    public void enqueuePaymentForProcess(PaymentRequest request) {
+        paymentsToProcess.offer(request);
     }
 }
