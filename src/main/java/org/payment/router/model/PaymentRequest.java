@@ -1,27 +1,16 @@
 package org.payment.router.model;
 
-import jakarta.persistence.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-@Entity
-@Table(name = "payments")
 public class PaymentRequest {
-
-    @Id
-    @Column(nullable = false)
     public String correlationId;
-
-    @Column(nullable = false)
     public Double amount;
-
-    @Column(nullable = false)
     public Instant requestedAt;
-
-    @Column(nullable = false)
     public String provider;
 
-    public PaymentRequest() {}
+    public PaymentRequest() {
+    }
 
     public PaymentRequest(String correlationId, Double amount) {
         this.correlationId = correlationId;

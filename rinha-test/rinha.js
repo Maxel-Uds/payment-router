@@ -232,8 +232,6 @@ export async function checkPaymentsConsistency() {
   paymentsInconsistencyCounter.add(inconsistencies);
 
   if (inconsistencies > 0) {
-    console.warn(`${backendPaymentsSummary.default.totalRequests} meu - deles ${defaultAdminPaymentsSummary.totalRequests}.`);
-    console.warn(`from: ${from} - to: ${to}`);
     console.warn(`${inconsistencies} inconsistências encontradas.`);
   }
 

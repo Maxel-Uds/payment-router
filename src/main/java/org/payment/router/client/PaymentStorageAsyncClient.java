@@ -6,9 +6,9 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.payment.router.model.PaymentRequest;
 
-@RegisterRestClient(configKey="processor-default-async-api", baseUri = "${quarkus.rest-client.processor-default-async-api.url}")
-public interface PaymentProcessorDefaultAsyncClient {
+@RegisterRestClient(configKey="storage-async-api", baseUri = "${quarkus.rest-client.storage-async-api.url}")
+public interface PaymentStorageAsyncClient {
     @POST
-    @Path("/payments")
-    Response process(PaymentRequest request);
+    @Path("/save")
+    Response save(PaymentRequest request);
 }
