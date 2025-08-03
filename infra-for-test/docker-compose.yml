@@ -70,27 +70,27 @@ services:
 
 ##### Minha infra
   api01:
-    image: quarkus-payment-router:test
+    image: suntzu12/quarkus-payment-router:10.0.0
     container_name: api1
     hostname: api01
     ports:
       - "8081:8080"
     environment:
-      PROCESS_THREAD_POOL: 15
+      PROCESS_THREAD_POOL: 20
       QUARKUS_REST_CLIENT_DEFAULT_API_URL: http://payment-processor-default:8080
       QUARKUS_REST_CLIENT_FALLBACK_API_URL: http://payment-processor-fallback:8080
       QUARKUS_REST_CLIENT_STORAGE_API_URL: http://api2:8080
     deploy:
       resources:
         limits:
-          cpus: "0.60"
-          memory: "150MB"
+          cpus: "0.50"
+          memory: "125MB"
     networks:
       - payment-router
       - payment-processor
 
   api02:
-    image: quarkus-payment-storage:test
+    image: suntzu12/quarkus-payment-storage:1.0.0
     container_name: api2
     hostname: api02
     ports:
@@ -100,16 +100,14 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.60"
-          memory: "150MB"
+          cpus: "0.50"
+          memory: "125MB"
     networks:
       - payment-router
 
   load_balancer:
-    image: nginx:latest
+    image: suntzu12/lua-nginx-loadbalancer:20250803010034
     container_name: load_balancer
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - api01
       - api02
@@ -118,10 +116,27 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.30"
-          memory: "50MB"
+          cpus: "0.50"
+          memory: "100MB"
     networks:
       - payment-router
+#  load_balancer:
+#    image: nginx:latest
+#    container_name: load_balancer
+#    volumes:
+#      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+#    depends_on:
+#      - api01
+#      - api02
+#    ports:
+#      - "9999:9999"
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.50"
+#          memory: "100MB"
+#    networks:
+#      - payment-router
 
 networks:
   payment-processor:
