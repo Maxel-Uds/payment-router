@@ -3,7 +3,9 @@ version: '3.8'
 services:
   api01:
     image: suntzu12/quarkus-payment-router:11.0.0
-    container_name: api1
+    container_name: api01
+    depends_on:
+      - api03
     hostname: api01
     ports:
       - "8081:8080"
@@ -11,34 +13,56 @@ services:
       PROCESS_THREAD_POOL: 20
       QUARKUS_REST_CLIENT_DEFAULT_API_URL: http://payment-processor-default:8080
       QUARKUS_REST_CLIENT_FALLBACK_API_URL: http://payment-processor-fallback:8080
-      QUARKUS_REST_CLIENT_STORAGE_API_URL: http://api2:8080
+      QUARKUS_REST_CLIENT_STORAGE_API_URL: http://api03:8080
     deploy:
       resources:
         limits:
-          cpus: "0.40"
-          memory: "125MB"
+          cpus: "0.30"
+          memory: "100MB"
     networks:
       - payment-router
       - payment-processor
 
   api02:
-    image: suntzu12/quarkus-payment-storage:1.0.0
-    container_name: api2
+    image: suntzu12/quarkus-payment-router:11.0.0
+    container_name: api02
+    depends_on:
+      - api03
     hostname: api02
     ports:
       - "8082:8080"
+    environment:
+      PROCESS_THREAD_POOL: 20
+      QUARKUS_REST_CLIENT_DEFAULT_API_URL: http://payment-processor-default:8080
+      QUARKUS_REST_CLIENT_FALLBACK_API_URL: http://payment-processor-fallback:8080
+      QUARKUS_REST_CLIENT_STORAGE_API_URL: http://api03:8080
+    deploy:
+      resources:
+        limits:
+          cpus: "0.30"
+          memory: "100MB"
+    networks:
+      - payment-router
+      - payment-processor
+
+  api03:
+    image: suntzu12/quarkus-payment-storage:1.0.0
+    container_name: api03
+    hostname: api03
+    ports:
+      - "8083:8080"
     environment:
       LISTEN: 8080
     deploy:
       resources:
         limits:
-          cpus: "0.40"
-          memory: "125MB"
+          cpus: "0.30"
+          memory: "100MB"
     networks:
       - payment-router
 
   load_balancer:
-    image: suntzu12/lua-nginx-loadbalancer:20250803010034
+    image: suntzu12/lua-nginx-loadbalancer:20250804172350
     container_name: load_balancer
     depends_on:
       - api01
@@ -48,8 +72,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.70"
-          memory: "100MB"
+          cpus: "0.60"
+          memory: "50MB"
     networks:
       - payment-router
 
